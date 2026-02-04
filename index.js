@@ -6,9 +6,14 @@ const app = express();
 // const {  courseRouter } = require("./routes/course")
 // const { adminRouter } = require("./routes/admin")
 
-app.use("/user", userRouter)        
-app.use("/course", courseRouter)    
-app.use("/admin", adminRouter)
+const { userRouter }  = require("./routes/user")
+const {courseRouter} = require("./routes/course")
+
+
+app.use("/user", userRouter);  
+app.use("/course", courseRouter);      
+// app.use("/course", courseRouter)    
+// app.use("/admin", adminRouter)
 
 async function main(){               
     app.listen(3000);       
