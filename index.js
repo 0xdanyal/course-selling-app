@@ -1,20 +1,21 @@
 const mongoose = require('mongoose');
 const express = require('express');
-const app = express();
+const connect  = require("./utils/connectDb")
 
 const { userRouter }  = require("./routes/user")
 const {courseRouter} = require("./routes/course")
 const {adminRouter} = require("./routes/admin")
 
+const app = express();
+const PORT = 3000;
 
 app.use("/user", userRouter);  
 app.use("/course", courseRouter);      
 app.use("/admin", adminRouter);
 
-async function main(){   
-    // mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.6.0            
-    app.listen(3000);       
 
-}
 
-main();
+app.listen(PORT, () => {
+  connect();
+  console.log(`listening at port ${PORT}`);
+});

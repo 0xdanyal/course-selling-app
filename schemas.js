@@ -2,9 +2,6 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema;                            
 const ObjectId = mongoose.ObjectId; 
 
-console.log("connnected to db")
-mongoose.connect("mongodb://127.0.0.1:27017/courseApp")
-
 const userSchema = new Schema({
     email: {type: String, unique: true},
     password: String,
