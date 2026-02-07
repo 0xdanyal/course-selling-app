@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const connect = async () => {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/courseApp");
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to mongoDB.");
   } catch (error) {
     throw error;
