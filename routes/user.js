@@ -1,15 +1,21 @@
 const { Router } = require("express")        
 const userRouter = Router();
 
-const { userModel } = require("../schemas");
 
+
+// Import the required dependencies 
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const z = require("zod");
+const { userModel } = require("../schemas");
 
 // Post router for user to Signup
 userRouter.post("/signup", async function(req, res){      
 
+    console.log("REQ BODY:", req.body);
     //input validation using zod 
     const requiredBody = z.object({
-        email: z.string().min(3).max(100).email(),
+        email: z.email(),
         password: z.string().min(3).max(100),
         firstName: z.string().min(3).max(30),
         lastName: z.string().min(3).max(30),
@@ -54,6 +60,8 @@ userRouter.post("/signup", async function(req, res){
         message: "Signed up Successfull"
     });
 });
+
+// ==========================================
 
 userRouter.post("/signin", function(req, res){
     res.json({
