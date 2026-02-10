@@ -1,9 +1,5 @@
 const { Router } = require("express")        
 const userRouter = Router();
-
-
-
-// Import the required dependencies 4
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const z = require("zod");
