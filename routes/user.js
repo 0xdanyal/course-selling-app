@@ -3,7 +3,7 @@ const userRouter = Router();
 
 
 
-// Import the required dependencies 
+// Import the required dependencies 4
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const z = require("zod");
@@ -12,7 +12,7 @@ const { userModel } = require("../schemas");
 // Post router for user to Signup
 userRouter.post("/signup", async function(req, res){      
 
-    console.log("REQ BODY:", req.body);
+    // console.log("REQ BODY:", req.body);
     //input validation using zod 
     const requiredBody = z.object({
         email: z.email(),
@@ -26,7 +26,7 @@ userRouter.post("/signup", async function(req, res){
     const parsedDataSuccess = requiredBody.safeParse(req.body);         
 
     //If data is not correct then return this response
-    if(!parsedDataSuccess.success){                     
+    if(!parsedDataSuccess.success){ 
         return res.json({
             message: "Incorrect Format",
             error: parsedDataSuccess.error
@@ -61,14 +61,80 @@ userRouter.post("/signup", async function(req, res){
     });
 });
 
-// ==========================================
 
-userRouter.post("/signin", function(req, res){
-    res.json({
-        message: "Signup endpoint"
-    })
-})
+// ========================================================
 
+    // 1. req.body to get all data from FE side the user typed!
+    // 2. need to validate the data and compare with DB, and password with that hashed one.
+    // 3. generate the token for that user afer pwd matches.
+    // 4. Sending that token in http body to client.
+
+userRouter.post("/signin",async function(req, res){
+
+    // Define the schema for validating the request body data using zod
+    const requireBody = z.object({
+        // Email must be a valid email format
+        email: z.email(),
+        // Password must be at least 6 character
+        password: z.string().min(6)
+    });
+    // Parse adnd validate the incomng request body data
+    const parsedDataWithSuccess = requireBody.safeParse(req.body);
+
+    // If validation fails, return a error with the validation error details
+    if(!parsedDataWithSuccess.success){
+        return res.json({
+            message: "Incorrect Data Fotrmat",
+            error: parsedDataWithSuccess.error,
+        });
+    };
+
+    // Extract validated email and password from the body
+    const { email, password } = req.body
+    // fetch the user from DB
+    const user = await userModel.findOne({
+        email: email,
+    });
+
+    // If the user is not found, return a error indicating incorrect credentials
+    if(!user){
+        return res.status(403).json({
+            message:"User doesn't exist!"
+        });
+    }
+
+    // Compare the provided password with the stored hashed password using bcrypt
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    // If the password matches, create a jwt token and send it to the client
+    if(passwordMatch){
+
+                // console.log("JWT SECRET KEY =", process.env.JWT_SECRET_KEY);
+
+        // Create a jwt token using the jwt.sign() method
+        const token = jwt.sign(
+            {id: user._id},
+            process.env.JWT_SECRET_KEY,
+            { expiresIn: "1d" }
+        );
+
+
+        // Send the generated token back to client
+        res.status(200).json({
+      msg: "Login successful",
+      token: token,
+    });
+
+    }else{
+        // If the password does not match, return a error indicating the invalid credentials
+        res.status(403).json({
+            // Error message for failed password comparison
+            message:"Invalid password!"
+        })
+    }
+});
+
+//===============================================  
 
 userRouter.get("/purchases", function(req, res){         
     res.json({
