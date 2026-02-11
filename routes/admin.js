@@ -236,7 +236,7 @@ adminRouter.put("/update-course", authMiddleware, async function(req,res) {
 // admin routes for getting all courses at once
 adminRouter.get("/courses", authMiddleware, async function(req,res){
     // Get the adminId from the request object of the middleware
-    const adminId = req.adminId;
+    const adminId = req.userId;
 
     // Find all the courses with given creatorId
     const courses = await courseModel.find({
@@ -245,7 +245,7 @@ adminRouter.get("/courses", authMiddleware, async function(req,res){
 
     // Respond with the courses if they are found successfully
     res.json({
-        message: "Courses fetched successfuly!",
+        message: "Courses found successfuly!",
         courses: courses,
     });
 });
