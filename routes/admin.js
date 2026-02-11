@@ -132,33 +132,35 @@ adminRouter.post("/create-course", authMiddleware, async function(req,res) {
     const adminId = req.userId;
     // console.log(req.userId);
 
+    console.log("REQ BODY =", req.body);
     // Validate the request body data using zod schema
     const requireBody = z.object({
         title: z.string().min(3),
         description: z.string().min(10),
-        imageUrl: z.url(),
+        imageURL: z.url(),
         price: z.number().positive(),
     });
-    // Parse and validate the request body data
-    const parseDataWithSuccess = requireBody.safeParse(req.body);
 
-    // If the data format is incorrect, send an error message to the client
-    if(!parseDataWithSuccess){
-        return res.json({
-            message: "Incorrect data format",
-            error: parseDataWithSuccess.error,
-        });
-    }
+    // Parse and validate the request body data (safeParse() method just return the result in YES/NO)
+    const parsed = requireBody.safeParse(req.body);
 
+  if (!parsed.success) {
+    console.log("Zod Error =", parsed.error);
+
+    return res.status(400).json({
+      message: "Incorrect data format",
+      error: parsed.error,
+    });
+  }
     // Get title, description, imageURL, price from the request body
-    const {title,description,imageUrl,price} = req.body;
+    const {title,description,imageURL,price} = req.body;
 
     // Create a new course with the given title, description, imageURL, price, creatorId
     const course = await courseModel.create({
-        title:title,
-        description:description,
-        imageUrl:imageUrl,
-        price:price,
+        title,
+        description,
+        imageURL,
+        price,
         creatorId:adminId,
     });
 
@@ -179,7 +181,7 @@ adminRouter.put("/update-course", authMiddleware, async function(req,res) {
         courseId: z.string().min(5), // Ensure course ID is at least 5 characters
         title: z.string().min(3).optional(), // Title is optional
         description: z.string().min(5).optional(), // Description is optional
-        imageUrl: z.string().min(5).optional(), // Image URL is optional
+        imageURL: z.string().min(5).optional(), // Image URL is optional
         price: z.number().positive().optional(), // Price is optional
     });
 
@@ -195,7 +197,7 @@ adminRouter.put("/update-course", authMiddleware, async function(req,res) {
     }
 
     // Destructure the validated fields from the request body
-    const {title,description,imageUrl,price,courseId} = req.body;
+    const {title,description,imageURL,price,courseId} = req.body;
 
     // Attempt to find the course in the database using the provided courseId and adminId
     const course = await courseModel.findOne({
@@ -220,7 +222,7 @@ adminRouter.put("/update-course", authMiddleware, async function(req,res) {
         // It uses the provided courseId and adminId to identify the course. For each field (title, description, imageUrl, price), if a new value is provided, it is used to update the course. If a field is not provided, the existing value from the database is kept.
         title: title || course.title,
         description: description || course.description,
-        imageUrl: imageUrl || course.imageUrl,
+        imageURL: imageURL || course.imageURL,
         price: price || course.price,
     });
 
