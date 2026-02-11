@@ -129,7 +129,8 @@ adminRouter.post("/signin", async function(req, res){
 // admin route for creating a course============================================
 adminRouter.post("/create-course", authMiddleware, async function(req,res) {
     // Get the adminId from the request object
-    const adminId = req.adminId;
+    const adminId = req.userId;
+    // console.log(req.userId);
 
     // Validate the request body data using zod schema
     const requireBody = z.object({
