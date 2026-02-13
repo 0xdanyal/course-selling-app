@@ -3,7 +3,8 @@ const userRouter = Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const z = require("zod");
-const { userModel } = require("../schemas");
+const { userModel, purchaseModel, courseModel } = require("../schemas");
+const {authMiddleware} = require("../middleware/Authmiddleware")
 
 // Post router for user to Signup
 userRouter.post("/signup", async function(req, res){      
@@ -130,13 +131,35 @@ userRouter.post("/signin",async function(req, res){
     }
 });
 
-//===============================================  
+//===============================================  to show all purchased courses by the specefic user
+userRouter.get("/purchases", authMiddleware, async function(req, res){     
+    
+    const userId = req.userId;
 
-userRouter.get("/purchases", function(req, res){         
-    res.json({
-        message: "Signup endpoint"
+    const purchases = await purchaseModel.find({
+        userId: userId,
     })
-})
+
+    if(!purchases){
+        return res.status(404).json({
+            message:"No purchases found",
+        });
+    }
+
+
+ // If purchases are found, extract the courseIds from the found purchases
+    const purchasesCourseIds = purchases.map((purchase) => purchase.courseId);
+
+     // I want all course details to show them in the content feed
+   const courseData = await courseModel.find({
+        _id: {$in:purchasesCourseIds}, 
+    });
+
+   res.status(200).json({
+        purchases,
+        courseData,
+    });
+});
 
 module.exports = {                          
     userRouter: userRouter
